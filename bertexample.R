@@ -1,5 +1,8 @@
 #Source: https://blogs.rstudio.com/ai/posts/2019-09-30-bert-r/
 
+library(zeallot)
+library(dplyr)
+
 Sys.setenv(TF_KERAS=1) 
 # make sure we use python 3
 reticulate::use_python('/usr/bin/python3', required=T)
@@ -53,7 +56,7 @@ dt_data = function(dir, rows_to_read){
 }
 
 c(x_train,x_segment, y_train) %<-% 
-  dt_data('~/Downloads/jigsaw-unintended-bias-in-toxicity-classification/train.csv',2000)
+  dt_data('/var/www/html/train.csv',2000)
 
 train = do.call(cbind,x_train) %>% t()
 segments = do.call(cbind,x_segment) %>% t()
@@ -88,7 +91,7 @@ model %>% compile(
   metrics = 'accuracy'
 )
 
-model %>% fit(
+history <- model %>% fit(
   concat,
   targets,
   epochs=epochs,
