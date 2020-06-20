@@ -25,8 +25,8 @@ bch_size = 70
 epochs = 1
 learning_rate = 1e-4
 
-DATA_COLUMN = 'comment_text'
-LABEL_COLUMN = 'target'
+DATA_COLUMN = 'textEmbedding'
+LABEL_COLUMN = 'resposta'
 
 model = k_bert$load_trained_model_from_checkpoint(
   config_path,
