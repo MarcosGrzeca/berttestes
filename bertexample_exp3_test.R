@@ -24,7 +24,7 @@ learning_rate = 1e-4
 DATA_COLUMN = 'textEmbedding'
 LABEL_COLUMN = 'resposta'
 
-df = data.table::fread('planilhas/exp2.csv')
+df = data.table::fread('planilhas/exp3.csv')
 
 library("caret")
 
