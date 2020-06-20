@@ -20,8 +20,8 @@ k_bert = import('keras_bert')
 token_dict = k_bert$load_vocabulary(vocab_path)
 tokenizer = k_bert$Tokenizer(token_dict)
 
-seq_length = 50L
-bch_size = 70
+seq_length = 38L
+bch_size = 64
 epochs = 2
 learning_rate = 1e-4
 
@@ -37,10 +37,11 @@ model = k_bert$load_trained_model_from_checkpoint(
 
 
 df = data.table::fread('planilhas/exp1.csv')
-df
 
-train = sample_n(df,nrow(df)*0.8)
-test = anti_join(train,df)
+library("caret")
+trainIndex <- createDataPartition(df$resposta, p=0.8, list=FALSE)
+train <- df[ trainIndex,]
+test <- df[-trainIndex,]
 
 tokenize_fun = function(dataset) {
   c(indices, target, segments) %<-% list(list(),list(),list())
@@ -59,13 +60,19 @@ dt_data = function(data){
 }
 
 c(x_train,x_segment, y_train) %<-% dt_data(train)
-c(x_test,x_segment_test, y_test) %<-% dt_data(test)
 
 train = do.call(cbind,x_train) %>% t()
 segments = do.call(cbind,x_segment) %>% t()
 targets = do.call(cbind,y_train) %>% t()
-
 concat = c(list(train ),list(segments))
+
+c(x_test,x_segment_test, y_test) %<-% dt_data(test)
+
+test_validate = do.call(cbind, x_test) %>% t()
+segments_test = do.call(cbind, x_segment_test) %>% t()
+targets_test = do.call(cbind, y_test) %>% t()
+
+concat_test = c(list(test_validate ),list(segments_test))
 
 c(decay_steps, warmup_steps) %<-% k_bert$calc_train_steps(
   targets %>% length(),
@@ -99,3 +106,14 @@ history <- model %>% fit(
   targets,
   epochs=epochs,
   batch_size=bch_size, validation_split=0.2)
+
+
+# history
+predictions <- model %>% predict(concat_test)
+predictions
+predictions2 <- round(predictions, 0)
+predictions2
+
+matriz <- confusionMatrix(data = as.factor(predictions2), as.factor(test$resposta), positive="1")
+matriz
+print(paste("F1 ", matriz$byClass["F1"] * 100, "Precisao ", matriz$byClass["Precision"] * 100, "Recall ", matriz$byClass["Recall"] * 100, "Acuracia ", matriz$overall["Accuracy"] * 100))

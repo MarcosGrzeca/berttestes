@@ -22,7 +22,7 @@ tokenizer = k_bert$Tokenizer(token_dict)
 
 seq_length = 50L
 bch_size = 70
-epochs = 1
+epochs = 5
 learning_rate = 1e-4
 
 DATA_COLUMN = 'textEmbedding'
@@ -96,3 +96,5 @@ history <- model %>% fit(
   targets,
   epochs=epochs,
   batch_size=bch_size, validation_split=0.2)
+
+history
